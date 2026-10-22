@@ -83,8 +83,8 @@
         <div class="preview-top-strip">
           <div class="preview-filename">
             <span>📄</span>
-            <span id="datasetFilename">users.csv</span>
-            <span class="preview-file-badge" id="datasetSize">993 KB</span>
+            <span id="datasetFilename">—</span>
+            <span class="preview-file-badge" id="datasetSize">—</span>
           </div>
           <button type="button" class="btn-remove-dataset" id="clearFileBtn">Remove File</button>
         </div>
@@ -93,19 +93,19 @@
         <div class="clickpe-stat-grid">
           <div class="clickpe-stat-card">
             <div class="clickpe-stat-label">Total Applicants</div>
-            <div class="clickpe-stat-number mint" id="statTotalUsers">10,001</div>
+            <div class="clickpe-stat-number mint" id="statTotalUsers">—</div>
           </div>
           <div class="clickpe-stat-card">
             <div class="clickpe-stat-label">Avg Monthly Income</div>
-            <div class="clickpe-stat-number" id="statAvgIncome">₹0</div>
+            <div class="clickpe-stat-number" id="statAvgIncome">—</div>
           </div>
           <div class="clickpe-stat-card">
             <div class="clickpe-stat-label">Avg Credit Score</div>
-            <div class="clickpe-stat-number mint" id="statAvgCredit">0</div>
+            <div class="clickpe-stat-number mint" id="statAvgCredit">—</div>
           </div>
           <div class="clickpe-stat-card">
             <div class="clickpe-stat-label">Prime Credit (750+)</div>
-            <div class="clickpe-stat-number" id="statPrimePct">0%</div>
+            <div class="clickpe-stat-number" id="statPrimePct">—</div>
           </div>
         </div>
 
@@ -338,9 +338,19 @@
       if (e.target.files.length > 0) processFile(e.target.files[0]);
     });
 
+    let parsedRowsCount = 0;
+
     clearFileBtn.addEventListener('click', () => {
       selectedFile = null;
+      parsedRowsCount = 0;
       fileInput.value = '';
+      datasetFilename.textContent = '—';
+      datasetSize.textContent = '—';
+      statTotalUsers.textContent = '—';
+      statAvgIncome.textContent = '—';
+      statAvgCredit.textContent = '—';
+      statPrimePct.textContent = '—';
+      previewTableBody.innerHTML = '';
       datasetPreviewPanel.classList.remove('show');
       dropZone.style.display = 'block';
       uploadBtn.disabled = true;
@@ -402,7 +412,9 @@
           }
         }
 
-        // Metrics
+        parsedRowsCount = validRows;
+
+        // Metrics - 100% Dynamically Calculated
         statTotalUsers.textContent = validRows.toLocaleString();
         statAvgIncome.textContent = '₹' + Math.round(totalIncome / (validRows || 1)).toLocaleString();
         statAvgCredit.textContent = Math.round(totalCredit / (validRows || 1));
@@ -438,7 +450,7 @@
         log('INFO', `Loaded dataset: ${file.name} (${validRows.toLocaleString()} rows). Ready to stream to S3.`);
       };
 
-      reader.readAsText(file.slice(0, 500000));
+      reader.readAsText(file);
     }
 
     // Execute Pipeline
@@ -510,7 +522,7 @@
         // 03: RDS Ingestion (8s Buffer for Lambda Batch Upsert)
         // ==========================================
         setStep(3, 'active', 'RDS Writing');
-        log('INFO', 'Waiting 8s for AWS Lambda to bulk-insert 10,000 rows into AWS RDS PostgreSQL...');
+        log('INFO', `Waiting 8s for AWS Lambda to bulk-insert ${parsedRowsCount.toLocaleString()} rows into AWS RDS PostgreSQL...`);
 
         for (let sec = 8; sec >= 1; sec--) {
           setStep(3, 'active', `RDS (${sec}s)`);
@@ -519,7 +531,7 @@
 
         setStep(3, 'completed', 'Committed');
         progressBar.style.width = '85%';
-        log('SUCCESS', 'Ingestion complete. 10,001 candidate profiles committed to RDS.');
+        log('SUCCESS', `Ingestion complete. ${parsedRowsCount.toLocaleString()} candidate profiles committed to RDS.`);
 
         // ==========================================
         // 04: n8n Matching Notification (No-CORS Mode)

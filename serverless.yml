@@ -1,4 +1,4 @@
-﻿service: loan-eligibility-engine
+service: loan-eligibility-engine
 frameworkVersion: '3'
 
 provider:
@@ -45,6 +45,11 @@ provider:
             - s3:PutObject
             - s3:GetObject
           Resource: "arn:aws:s3:::${self:custom.bucketName}/*"
+
+package:
+  patterns:
+    - '!./**'
+    - 'handler.py'
 
 custom:
   bucketName: loan-engine-uploads-${sls:stage}-${aws:accountId}

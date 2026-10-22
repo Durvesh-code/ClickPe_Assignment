@@ -1,4 +1,4 @@
-﻿import csv
+import csv
 import io
 import json
 import logging
@@ -9,7 +9,6 @@ import urllib.parse
 import urllib.request
 import uuid
 import boto3
-import pg8000.native
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -86,6 +85,8 @@ def get_upload_url(event, context):
 
 
 def ingest_users(event, context):
+    import pg8000.native
+
     start_time = time.time()
     db_url = os.environ.get("DATABASE_URL")
     if not db_url:
@@ -180,7 +181,7 @@ def ingest_users(event, context):
         conn.close()
 
 
-def _upsert_batch(conn: pg8000.native.Connection, batch: list):
+def _upsert_batch(conn, batch: list):
     placeholders = []
     params = {}
     for idx, row in enumerate(batch):

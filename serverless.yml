@@ -1,0 +1,76 @@
+﻿service: loan-eligibility-engine
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.11
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  memorySize: 512
+  timeout: 29
+  httpApi:
+    cors:
+      allowedOrigins:
+        - '*'
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      allowedMethods:
+        - GET
+        - POST
+        - OPTIONS
+  s3:
+    uploadBucket:
+      name: ${self:custom.bucketName}
+      corsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - '*'
+            AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - HEAD
+            MaxAge: 3000
+  environment:
+    UPLOAD_BUCKET: ${self:custom.bucketName}
+    DATABASE_URL: ${env:DATABASE_URL}
+    N8N_WEBHOOK_URL: ${env:N8N_WEBHOOK_URL, 'http://localhost:5678/webhook/ingest-complete'}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+          Resource: "arn:aws:s3:::${self:custom.bucketName}/*"
+
+custom:
+  bucketName: loan-engine-uploads-${sls:stage}-${aws:accountId}
+  pythonRequirements:
+    dockerizePip: false
+
+plugins:
+  - serverless-python-requirements
+
+functions:
+  getUploadUrl:
+    handler: handler.get_upload_url
+    timeout: 15
+    description: Generates a short-lived S3 pre-signed PUT URL for direct CSV upload
+    events:
+      - httpApi:
+          path: /upload-url
+          method: get
+
+  ingestUsers:
+    handler: handler.ingest_users
+    timeout: 60
+    description: Triggered by s3:ObjectCreated; bulk-inserts 10,000 CSV rows into AWS RDS PostgreSQL
+    events:
+      - s3:
+          bucket: uploadBucket
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .csv

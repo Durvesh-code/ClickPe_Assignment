@@ -1,0 +1,831 @@
+/* ==========================================================================
+   ClickPe — Official Brand Design System
+   Colors extracted from ClickPe.in:
+   - Primary Mint Green: #00E887 / #05D87E
+   - Deep Midnight Navy: #060F26 / #0B1938
+   - Luminous Porcelain Canvas: #F6F9F8 / #FFFFFF
+   - Crisp Slate Grays: #475569 / #64748B
+   ========================================================================== */
+
+:root {
+  /* ClickPe Signature Canvas & Surfaces */
+  --cp-bg: #f5f8f7;
+  --cp-surface: #ffffff;
+  --cp-surface-subtle: #f0f5f3;
+  --cp-surface-elevated: #ffffff;
+  --cp-navy-card: #060f26;
+  --cp-navy-card-subtle: #0d1b3e;
+
+  /* ClickPe Signature Brand Colors */
+  --cp-mint: #00e887;
+  --cp-mint-glow: rgba(0, 232, 135, 0.28);
+  --cp-mint-hover: #00d27a;
+  --cp-mint-soft: rgba(0, 232, 135, 0.12);
+  --cp-mint-dark: #009957;
+
+  /* ClickPe Midnight Navy */
+  --cp-navy: #060f26;
+  --cp-navy-hover: #0a1738;
+  --cp-navy-light: #162449;
+
+  /* Text Colors */
+  --cp-text-heading: #071228;
+  --cp-text-body: #334155;
+  --cp-text-muted: #64748b;
+  --cp-text-dim: #94a3b8;
+  --cp-text-on-navy: #f8fafc;
+
+  /* Borders & Shadows */
+  --cp-border-light: rgba(7, 18, 40, 0.08);
+  --cp-border-hover: rgba(0, 232, 135, 0.5);
+  --cp-border-navy: rgba(255, 255, 255, 0.1);
+
+  --cp-shadow-sm: 0 2px 8px rgba(6, 15, 38, 0.04);
+  --cp-shadow-card: 0 16px 40px -12px rgba(6, 15, 38, 0.07), 0 0 0 1px rgba(7, 18, 40, 0.05);
+  --cp-shadow-glow: 0 10px 30px -5px rgba(0, 232, 135, 0.35);
+
+  /* Radii & Typography */
+  --radius-full: 9999px;
+  --radius-xl: 20px;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--cp-bg);
+  font-family: var(--font-main);
+  color: var(--cp-text-body);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.25rem 4rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Luminous ClickPe Mint & Azure Aurora Glows in Background */
+.clickpe-aurora {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.aurora-mint {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 232, 135, 0.22) 0%, rgba(0, 232, 135, 0) 65%);
+  top: -150px;
+  left: -100px;
+  filter: blur(80px);
+}
+
+.aurora-sky {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.16) 0%, rgba(56, 189, 248, 0) 70%);
+  top: 50px;
+  right: -80px;
+  filter: blur(90px);
+}
+
+/* App Wrapper */
+.app-container {
+  width: 100%;
+  max-width: 920px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ==========================================================================
+   CLICKPE NAVBAR
+   ========================================================================== */
+
+.clickpe-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.5rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--cp-border-light);
+  border-radius: var(--radius-full);
+  box-shadow: var(--cp-shadow-sm);
+}
+
+.clickpe-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.clickpe-logo-glyph {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--cp-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cp-mint);
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.clickpe-brand-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--cp-navy);
+}
+
+.clickpe-brand-title span {
+  color: var(--cp-mint-dark);
+}
+
+.clickpe-nav-pill {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--cp-navy);
+  background: var(--cp-surface-subtle);
+  border: 1px solid var(--cp-border-light);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   CLICKPE HERO HEADER
+   ========================================================================== */
+
+.clickpe-hero {
+  text-align: center;
+  padding: 1rem 0 0.5rem;
+}
+
+.hero-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  border-radius: var(--radius-full);
+  background: #ffffff;
+  border: 1px solid rgba(0, 232, 135, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 232, 135, 0.12);
+  color: var(--cp-mint-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+}
+
+.hero-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cp-mint);
+  box-shadow: 0 0 8px var(--cp-mint);
+}
+
+.hero-headline {
+  font-size: clamp(2rem, 4.5vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--cp-text-heading);
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+.hero-headline span {
+  background: linear-gradient(135deg, var(--cp-navy) 40%, var(--cp-mint-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subheadline {
+  font-size: 0.98rem;
+  color: var(--cp-text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   MAIN WORKSPACE CARD (Crisp Luminous Card)
+   ========================================================================== */
+
+.clickpe-card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border-light);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  box-shadow: var(--cp-shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Settings Accordion */
+.clickpe-settings-box {
+  background: var(--cp-surface-subtle);
+  border: 1px solid var(--cp-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.clickpe-settings-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.15rem;
+  background: none;
+  border: none;
+  color: var(--cp-text-muted);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.clickpe-settings-btn:hover {
+  color: var(--cp-text-heading);
+}
+
+.clickpe-settings-body {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1.15rem;
+  border-top: 1px solid var(--cp-border-light);
+  background: #ffffff;
+}
+
+.clickpe-settings-box.open .clickpe-settings-body {
+  display: grid;
+}
+
+@media (max-width: 650px) {
+  .clickpe-settings-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.input-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.input-field-group label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.input-field-group input {
+  background: var(--cp-surface-subtle);
+  border: 1px solid var(--cp-border-light);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.85rem;
+  color: var(--cp-text-heading);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  outline: none;
+  transition: var(--transition);
+}
+
+.input-field-group input:focus {
+  border-color: var(--cp-mint);
+  box-shadow: 0 0 0 3px var(--cp-mint-soft);
+}
+
+/* ==========================================================================
+   DROP ZONE (Clean White with ClickPe Mint Glow)
+   ========================================================================== */
+
+.clickpe-dropzone {
+  position: relative;
+  border: 2px dashed rgba(7, 18, 40, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 2.75rem 1.5rem;
+  text-align: center;
+  background: #ffffff;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.clickpe-dropzone:hover,
+.clickpe-dropzone.drag-active {
+  border-color: var(--cp-mint-dark);
+  background: rgba(0, 232, 135, 0.03);
+  box-shadow: var(--cp-shadow-glow);
+  transform: translateY(-2px);
+}
+
+.clickpe-dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.clickpe-drop-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: var(--cp-mint-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cp-mint-dark);
+  transition: var(--transition);
+}
+
+.clickpe-dropzone:hover .clickpe-drop-icon {
+  background: var(--cp-mint);
+  color: var(--cp-navy);
+  transform: scale(1.08);
+}
+
+.clickpe-drop-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--cp-text-heading);
+  margin-bottom: 0.35rem;
+}
+
+.clickpe-drop-hint {
+  font-size: 0.88rem;
+  color: var(--cp-text-muted);
+}
+
+.clickpe-drop-hint code {
+  background: var(--cp-surface-subtle);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  color: var(--cp-navy);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   DATASET STATS & PREVIEW PANEL
+   ========================================================================== */
+
+.clickpe-preview-panel {
+  display: none;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: var(--cp-surface-subtle);
+  border: 1px solid var(--cp-border-light);
+  border-radius: var(--radius-lg);
+  animation: slideFadeIn 0.3s ease-out;
+}
+
+.clickpe-preview-panel.show {
+  display: flex;
+}
+
+@keyframes slideFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.preview-top-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.preview-filename {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--cp-text-heading);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.preview-file-badge {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  background: #ffffff;
+  border: 1px solid var(--cp-border-light);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  color: var(--cp-text-muted);
+}
+
+.btn-remove-dataset {
+  background: #ffffff;
+  border: 1px solid var(--cp-border-light);
+  border-radius: var(--radius-full);
+  color: #ef4444;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-remove-dataset:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+/* Metric Stats Grid */
+.clickpe-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.85rem;
+}
+
+@media (max-width: 700px) {
+  .clickpe-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.clickpe-stat-card {
+  background: #ffffff;
+  border: 1px solid var(--cp-border-light);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+  box-shadow: var(--cp-shadow-sm);
+}
+
+.clickpe-stat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+
+.clickpe-stat-number {
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--cp-text-heading);
+}
+
+.clickpe-stat-number.mint {
+  color: var(--cp-mint-dark);
+}
+
+/* Table Preview */
+.clickpe-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--cp-border-light);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+}
+
+.clickpe-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  text-align: left;
+}
+
+.clickpe-table th {
+  padding: 0.7rem 0.9rem;
+  color: var(--cp-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--cp-border-light);
+  background: var(--cp-surface-subtle);
+}
+
+.clickpe-table td {
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid var(--cp-border-light);
+  color: var(--cp-text-body);
+  font-family: var(--font-mono);
+}
+
+.clickpe-table tr:last-child td {
+  border-bottom: none;
+}
+
+.clickpe-table tr:hover {
+  background: rgba(0, 232, 135, 0.04);
+}
+
+.badge-status-pill {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.pill-salaried { background: #e0f2fe; color: #0284c7; }
+.pill-self { background: #fef3c7; color: #d97706; }
+.pill-business { background: #f3e8ff; color: #9333ea; }
+
+/* ==========================================================================
+   PRIMARY ACTION BUTTON (Midnight Navy + ClickPe Hover Glow)
+   ========================================================================== */
+
+.clickpe-btn-launch {
+  width: 100%;
+  padding: 1.05rem 1.75rem;
+  border-radius: var(--radius-full);
+  background: var(--cp-navy);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  box-shadow: 0 8px 25px rgba(6, 15, 38, 0.2);
+  transition: var(--transition);
+}
+
+.clickpe-btn-launch:hover:not(:disabled) {
+  background: var(--cp-navy-hover);
+  box-shadow: 0 10px 30px rgba(0, 232, 135, 0.4);
+  transform: translateY(-2px);
+}
+
+.clickpe-btn-launch:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.clickpe-btn-launch:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Progress Rail */
+.clickpe-progress-rail {
+  display: none;
+  width: 100%;
+  height: 6px;
+  background: var(--cp-surface-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: -0.5rem;
+}
+
+.clickpe-progress-rail.show {
+  display: block;
+}
+
+.clickpe-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--cp-navy) 0%, var(--cp-mint) 100%);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+/* ==========================================================================
+   PIPELINE STEPPER (Inspired by ClickPe 4 Steps)
+   ========================================================================== */
+
+.clickpe-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.85rem;
+}
+
+@media (max-width: 760px) {
+  .clickpe-stepper {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stepper-card {
+  background: #ffffff;
+  border: 1px solid var(--cp-border-light);
+  border-radius: var(--radius-md);
+  padding: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: var(--transition);
+}
+
+.stepper-card.active {
+  background: var(--cp-navy);
+  border-color: var(--cp-navy);
+  box-shadow: 0 8px 24px rgba(6, 15, 38, 0.25);
+}
+
+.stepper-card.active .stepper-title {
+  color: #ffffff;
+}
+
+.stepper-card.active .stepper-status {
+  color: var(--cp-mint);
+}
+
+.stepper-card.completed {
+  border-color: var(--cp-mint-dark);
+  background: rgba(0, 232, 135, 0.06);
+}
+
+.stepper-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--cp-surface-subtle);
+  border: 1px solid var(--cp-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--cp-text-muted);
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.stepper-card.active .stepper-badge {
+  background: var(--cp-mint);
+  border-color: var(--cp-mint);
+  color: var(--cp-navy);
+  box-shadow: 0 0 12px var(--cp-mint);
+}
+
+.stepper-card.completed .stepper-badge {
+  background: var(--cp-mint-dark);
+  border-color: var(--cp-mint-dark);
+  color: #ffffff;
+}
+
+.stepper-card.failed .stepper-badge {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.stepper-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepper-title {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--cp-text-heading);
+}
+
+.stepper-status {
+  font-size: 0.72rem;
+  color: var(--cp-text-muted);
+  font-family: var(--font-mono);
+}
+
+/* ==========================================================================
+   TERMINAL EXECUTION CONSOLE (Clean Midnight Navy Box)
+   ========================================================================== */
+
+.clickpe-console {
+  background: var(--cp-navy-card);
+  border: 1px solid var(--cp-navy-card-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 16px 36px -10px rgba(6, 15, 38, 0.35);
+  display: flex;
+  flex-direction: column;
+}
+
+.console-bar {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--cp-border-navy);
+  padding: 0.65rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.console-bar-title {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.console-bar-title span.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cp-mint);
+  box-shadow: 0 0 8px var(--cp-mint);
+}
+
+.console-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.console-mini-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--cp-border-navy);
+  border-radius: var(--radius-sm);
+  color: #cbd5e1;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  padding: 0.2rem 0.55rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.console-mini-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.console-viewport {
+  padding: 1.15rem;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.65;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.log-line-item {
+  display: flex;
+  gap: 0.75rem;
+  word-break: break-all;
+}
+
+.log-time-stamp {
+  color: #475569;
+  flex-shrink: 0;
+}
+
+.log-badge-tag {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.log-tag-info { color: #60a5fa; }
+.log-tag-success { color: var(--cp-mint); }
+.log-tag-warn { color: #fbbf24; }
+.log-tag-error { color: #f87171; }
+.log-tag-sys { color: #a78bfa; }
+
+.log-content-text {
+  color: #e2e8f0;
+}
+
+/* Minimalist Footer */
+.clickpe-footer {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--cp-text-muted);
+  padding-top: 0.5rem;
+}

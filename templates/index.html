@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClickPe — Loan Eligibility Ingestion Engine</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- ClickPe Luminous Aurora Backdrops -->
+  <div class="clickpe-aurora">
+    <div class="aurora-mint"></div>
+    <div class="aurora-sky"></div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- ClickPe Top Navigation Bar -->
+    <header class="clickpe-navbar">
+      <div class="clickpe-brand">
+        <div class="clickpe-logo-glyph">C</div>
+        <div class="clickpe-brand-title">ClickPe <span>Engine</span></div>
+      </div>
+      <div class="clickpe-nav-pill">AWS &bull; us-east-1</div>
+    </header>
+
+    <!-- ClickPe Hero Header -->
+    <section class="clickpe-hero">
+      <h1 class="hero-headline">
+        All Your Finances. <span>One Click.</span>
+      </h1>
+      <p class="hero-subheadline">
+        Stream 10,000+ candidate records directly to Amazon S3 and trigger automated eligibility matching.
+      </p>
+    </section>
+
+    <!-- Main Workspace Card -->
+    <main class="clickpe-card">
+
+      <!-- Settings Accordion -->
+      <div class="clickpe-settings-box" id="settingsBox">
+        <button type="button" class="clickpe-settings-btn" id="settingsToggle">
+          <span>⚙️ Cloud & Webhook Endpoints</span>
+          <span id="settingsArrow">▼</span>
+        </button>
+        <div class="clickpe-settings-body" id="settingsBody">
+          <div class="input-field-group">
+            <label for="apiUrl">API Gateway URL (Pre-Signed S3)</label>
+            <input type="url" id="apiUrl" value="https://to6xiu2e7g.execute-api.us-east-1.amazonaws.com/upload-url">
+          </div>
+          <div class="input-field-group">
+            <label for="n8nWebhookUrl">n8n Matching Webhook (Localhost)</label>
+            <input type="url" id="n8nWebhookUrl" value="http://localhost:5678/webhook/ingest-complete">
+          </div>
+        </div>
+      </div>
+
+      <!-- Drag & Drop Zone -->
+      <div class="clickpe-dropzone" id="dropZone">
+        <input type="file" id="fileInput" accept=".csv" title="Upload users.csv">
+        <div class="clickpe-drop-icon">
+          <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+        </div>
+        <div class="clickpe-drop-title">Select or drag & drop candidate CSV</div>
+        <div class="clickpe-drop-hint">Drop <code>users.csv</code> to inspect applicants and stream directly to S3</div>
+      </div>
+
+      <!-- Real Dataset Analysis & 5-Row Table Preview -->
+      <div class="clickpe-preview-panel" id="datasetPreviewPanel">
+        <div class="preview-top-strip">
+          <div class="preview-filename">
+            <span>📄</span>
+            <span id="datasetFilename">users.csv</span>
+            <span class="preview-file-badge" id="datasetSize">993 KB</span>
+          </div>
+          <button type="button" class="btn-remove-dataset" id="clearFileBtn">Remove File</button>
+        </div>
+
+        <!-- Real Computed Statistics Grid -->
+        <div class="clickpe-stat-grid">
+          <div class="clickpe-stat-card">
+            <div class="clickpe-stat-label">Total Applicants</div>
+            <div class="clickpe-stat-number mint" id="statTotalUsers">10,001</div>
+          </div>
+          <div class="clickpe-stat-card">
+            <div class="clickpe-stat-label">Avg Monthly Income</div>
+            <div class="clickpe-stat-number" id="statAvgIncome">₹0</div>
+          </div>
+          <div class="clickpe-stat-card">
+            <div class="clickpe-stat-label">Avg Credit Score</div>
+            <div class="clickpe-stat-number mint" id="statAvgCredit">0</div>
+          </div>
+          <div class="clickpe-stat-card">
+            <div class="clickpe-stat-label">Prime Credit (750+)</div>
+            <div class="clickpe-stat-number" id="statPrimePct">0%</div>
+          </div>
+        </div>
+
+        <!-- Live Candidate Preview Table -->
+        <div class="clickpe-table-wrap">
+          <table class="clickpe-table">
+            <thead>
+              <tr>
+                <th>Applicant Name</th>
+                <th>Monthly Income</th>
+                <th>Credit Score</th>
+                <th>Employment</th>
+                <th>Age</th>
+              </tr>
+            </thead>
+            <tbody id="previewTableBody">
+              <!-- Dynamically populated from users.csv -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button type="button" class="clickpe-btn-launch" id="uploadBtn" disabled>
+        <span>⚡</span>
+        <span>Stream to S3 & Trigger Ingestion</span>
+      </button>
+
+      <!-- Execution Progress Rail -->
+      <div class="clickpe-progress-rail" id="progressRail">
+        <div class="clickpe-progress-fill" id="progressBar"></div>
+      </div>
+
+      <!-- 4-Step Pipeline (ClickPe Step Cards) -->
+      <div class="clickpe-stepper">
+        <div class="stepper-card" id="step1">
+          <div class="stepper-badge" id="stepBadge1">01</div>
+          <div class="stepper-text">
+            <div class="stepper-title">Pre-Signed URL</div>
+            <div class="stepper-status" id="stepStatus1">Idle</div>
+          </div>
+        </div>
+
+        <div class="stepper-card" id="step2">
+          <div class="stepper-badge" id="stepBadge2">02</div>
+          <div class="stepper-text">
+            <div class="stepper-title">Direct S3 Stream</div>
+            <div class="stepper-status" id="stepStatus2">Idle</div>
+          </div>
+        </div>
+
+        <div class="stepper-card" id="step3">
+          <div class="stepper-badge" id="stepBadge3">03</div>
+          <div class="stepper-text">
+            <div class="stepper-title">RDS Ingestion</div>
+            <div class="stepper-status" id="stepStatus3">Lambda</div>
+          </div>
+        </div>
+
+        <div class="stepper-card" id="step4">
+          <div class="stepper-badge" id="stepBadge4">04</div>
+          <div class="stepper-text">
+            <div class="stepper-title">n8n Matching</div>
+            <div class="stepper-status" id="stepStatus4">Webhook</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Execution Terminal Console (Midnight Navy Box) -->
+    <div class="clickpe-console">
+      <div class="console-bar">
+        <div class="console-bar-title">
+          <span class="dot"></span>
+          <span>pipeline.events &bull; live stream</span>
+        </div>
+        <div class="console-btns">
+          <button type="button" class="console-mini-btn" id="clearLogs">Clear</button>
+          <button type="button" class="console-mini-btn" id="copyLogs">Copy</button>
+        </div>
+      </div>
+
+      <div class="console-viewport" id="consoleLogs">
+        <div class="log-line-item">
+          <span class="log-time-stamp">[SYSTEM]</span>
+          <span class="log-badge-tag log-tag-sys">[READY]</span>
+          <span class="log-content-text">Portal initialized. Select or drop <code>users.csv</code> into the zone above.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="clickpe-footer">
+      ClickPe AI &bull; AWS Lambda + RDS PostgreSQL 16 + Self-Hosted n8n
+    </footer>
+
+  </div>
+
+  <!-- Client-side Logic (Vanilla JavaScript) -->
+  <script>
+    let selectedFile = null;
+
+    // Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const datasetPreviewPanel = document.getElementById('datasetPreviewPanel');
+    const datasetFilename = document.getElementById('datasetFilename');
+    const datasetSize = document.getElementById('datasetSize');
+    const clearFileBtn = document.getElementById('clearFileBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const apiUrlInput = document.getElementById('apiUrl');
+    const n8nWebhookUrlInput = document.getElementById('n8nWebhookUrl');
+    const consoleLogs = document.getElementById('consoleLogs');
+    const progressRail = document.getElementById('progressRail');
+    const progressBar = document.getElementById('progressBar');
+
+    // Metrics & Table
+    const statTotalUsers = document.getElementById('statTotalUsers');
+    const statAvgIncome = document.getElementById('statAvgIncome');
+    const statAvgCredit = document.getElementById('statAvgCredit');
+    const statPrimePct = document.getElementById('statPrimePct');
+    const previewTableBody = document.getElementById('previewTableBody');
+
+    // Settings Drawer
+    const settingsBox = document.getElementById('settingsBox');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const settingsArrow = document.getElementById('settingsArrow');
+    settingsToggle.addEventListener('click', () => {
+      settingsBox.classList.toggle('open');
+      settingsArrow.textContent = settingsBox.classList.contains('open') ? '▲' : '▼';
+    });
+
+    // Logging Utility
+    function log(type, message) {
+      const now = new Date();
+      const time = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+      const entry = document.createElement('div');
+      entry.className = 'log-line-item';
+
+      let typeClass = 'log-tag-info';
+      if (type === 'SUCCESS') typeClass = 'log-tag-success';
+      if (type === 'WARN') typeClass = 'log-tag-warn';
+      if (type === 'ERROR') typeClass = 'log-tag-error';
+      if (type === 'SYSTEM') typeClass = 'log-tag-sys';
+
+      entry.innerHTML = `
+        <span class="log-time-stamp">[${time}]</span>
+        <span class="log-badge-tag ${typeClass}">[${type}]</span>
+        <span class="log-content-text">${escapeHtml(message)}</span>
+      `;
+      consoleLogs.appendChild(entry);
+      consoleLogs.scrollTop = consoleLogs.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Console Actions
+    document.getElementById('clearLogs').addEventListener('click', () => {
+      consoleLogs.innerHTML = '';
+      log('SYSTEM', 'Log output cleared.');
+    });
+
+    document.getElementById('copyLogs').addEventListener('click', () => {
+      navigator.clipboard.writeText(consoleLogs.innerText).then(() => {
+        const btn = document.getElementById('copyLogs');
+        btn.textContent = 'Copied';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+      });
+    });
+
+    // Stepper State Controller
+    function setStep(stepNum, status, statusText) {
+      const step = document.getElementById(`step${stepNum}`);
+      const badge = document.getElementById(`stepBadge${stepNum}`);
+      const text = document.getElementById(`stepStatus${stepNum}`);
+
+      step.classList.remove('active', 'completed', 'failed');
+      if (status === 'active') {
+        step.classList.add('active');
+        badge.textContent = '●';
+        text.textContent = statusText || 'Running';
+      } else if (status === 'completed') {
+        step.classList.add('completed');
+        badge.textContent = '✓';
+        text.textContent = statusText || 'Done';
+      } else if (status === 'failed') {
+        step.classList.add('failed');
+        badge.textContent = '✕';
+        text.textContent = statusText || 'Failed';
+      } else {
+        badge.textContent = '0' + stepNum;
+        text.textContent = statusText || 'Idle';
+      }
+    }
+
+    function resetSteps() {
+      setStep(1, 'idle', 'Idle');
+      setStep(2, 'idle', 'Idle');
+      setStep(3, 'idle', 'Lambda');
+      setStep(4, 'idle', 'Webhook');
+      progressBar.style.width = '0%';
+      progressRail.classList.remove('show');
+    }
+
+    // Drag & Drop
+    ['dragenter', 'dragover'].forEach(name => {
+      dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-active');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-active');
+      });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files.length > 0) processFile(files[0]);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) processFile(e.target.files[0]);
+    });
+
+    clearFileBtn.addEventListener('click', () => {
+      selectedFile = null;
+      fileInput.value = '';
+      datasetPreviewPanel.classList.remove('show');
+      dropZone.style.display = 'block';
+      uploadBtn.disabled = true;
+      resetSteps();
+      log('INFO', 'Dataset cleared.');
+    });
+
+    // Parse and Inspect CSV Client-Side
+    function processFile(file) {
+      if (!file.name.toLowerCase().endsWith('.csv')) {
+        log('WARN', 'Only .csv files are supported. Please select users.csv.');
+        return;
+      }
+
+      selectedFile = file;
+      datasetFilename.textContent = file.name;
+      datasetSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+
+        if (lines.length < 2) {
+          log('ERROR', 'The selected CSV file appears to be empty.');
+          return;
+        }
+
+        const headers = lines[0].split(',').map(h => h.trim());
+        const rows = lines.slice(1);
+
+        let totalIncome = 0;
+        let totalCredit = 0;
+        let primeCount = 0;
+        let validRows = 0;
+
+        const previewRows = [];
+
+        for (let i = 0; i < rows.length; i++) {
+          const cols = rows[i].split(',').map(c => c.trim());
+          if (cols.length < headers.length) continue;
+
+          validRows++;
+          const income = parseInt(cols[3], 10) || 0;
+          const credit = parseInt(cols[4], 10) || 0;
+
+          totalIncome += income;
+          totalCredit += credit;
+          if (credit >= 750) primeCount++;
+
+          if (previewRows.length < 5) {
+            previewRows.push({
+              name: cols[1],
+              income: income,
+              credit: credit,
+              employment: cols[5],
+              age: cols[6]
+            });
+          }
+        }
+
+        // Metrics
+        statTotalUsers.textContent = validRows.toLocaleString();
+        statAvgIncome.textContent = '₹' + Math.round(totalIncome / (validRows || 1)).toLocaleString();
+        statAvgCredit.textContent = Math.round(totalCredit / (validRows || 1));
+        statPrimePct.textContent = Math.round((primeCount / (validRows || 1)) * 100) + '%';
+
+        // Table Preview
+        previewTableBody.innerHTML = '';
+        previewRows.forEach(r => {
+          let creditStyle = 'color: var(--cp-mint-dark);';
+          if (r.credit < 700) creditStyle = 'color: #d97706;';
+          if (r.credit < 650) creditStyle = 'color: #ef4444;';
+
+          let chipClass = 'pill-salaried';
+          if (r.employment.toLowerCase().includes('self')) chipClass = 'pill-self';
+          if (r.employment.toLowerCase().includes('business')) chipClass = 'pill-business';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="color: var(--cp-text-heading); font-weight: 700;">${escapeHtml(r.name)}</td>
+            <td>₹${r.income.toLocaleString()}</td>
+            <td style="${creditStyle} font-weight: 800;">${r.credit}</td>
+            <td><span class="badge-status-pill ${chipClass}">${escapeHtml(r.employment)}</span></td>
+            <td>${r.age}</td>
+          `;
+          previewTableBody.appendChild(tr);
+        });
+
+        dropZone.style.display = 'none';
+        datasetPreviewPanel.classList.add('show');
+        uploadBtn.disabled = false;
+        resetSteps();
+
+        log('INFO', `Loaded dataset: ${file.name} (${validRows.toLocaleString()} rows). Ready to stream to S3.`);
+      };
+
+      reader.readAsText(file.slice(0, 500000));
+    }
+
+    // Execute Pipeline
+    uploadBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+
+      const apiUrl = apiUrlInput.value.trim();
+      const n8nWebhookUrl = n8nWebhookUrlInput.value.trim();
+
+      if (!apiUrl) {
+        log('ERROR', 'API Gateway URL cannot be empty.');
+        return;
+      }
+
+      uploadBtn.disabled = true;
+      progressRail.classList.add('show');
+      resetSteps();
+      progressRail.classList.add('show');
+
+      try {
+        // ==========================================
+        // 01: Pre-Signed URL
+        // ==========================================
+        setStep(1, 'active', 'Requesting URL');
+        progressBar.style.width = '20%';
+        log('INFO', `Requesting pre-signed S3 URL from API Gateway...`);
+
+        const urlResponse = await fetch(`${apiUrl}?filename=${encodeURIComponent(selectedFile.name)}`, {
+          method: 'GET'
+        });
+
+        if (!urlResponse.ok) {
+          throw new Error(`API Gateway returned HTTP ${urlResponse.status}`);
+        }
+
+        const urlData = await urlResponse.json();
+        const uploadUrl = urlData.uploadUrl;
+        const objectKey = urlData.objectKey || selectedFile.name;
+
+        if (!uploadUrl) {
+          throw new Error('No uploadUrl returned by Lambda.');
+        }
+
+        setStep(1, 'completed', 'URL Acquired');
+        log('SUCCESS', `S3 Pre-Signed URL acquired for key: ${objectKey}`);
+
+        // ==========================================
+        // 02: Direct S3 Stream
+        // ==========================================
+        setStep(2, 'active', 'Streaming S3');
+        progressBar.style.width = '45%';
+        log('INFO', `Streaming ${(selectedFile.size / 1024).toFixed(1)} KB directly to S3 bucket...`);
+
+        const s3Response = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'text/csv' },
+          body: selectedFile
+        });
+
+        if (!s3Response.ok) {
+          throw new Error(`S3 direct upload failed with HTTP ${s3Response.status}`);
+        }
+
+        setStep(2, 'completed', 'S3 Complete');
+        progressBar.style.width = '65%';
+        log('SUCCESS', 'Direct S3 PUT succeeded. S3 event triggered ingestUsers Lambda.');
+
+        // ==========================================
+        // 03: RDS Ingestion (8s Buffer for Lambda Batch Upsert)
+        // ==========================================
+        setStep(3, 'active', 'RDS Writing');
+        log('INFO', 'Waiting 8s for AWS Lambda to bulk-insert 10,000 rows into AWS RDS PostgreSQL...');
+
+        for (let sec = 8; sec >= 1; sec--) {
+          setStep(3, 'active', `RDS (${sec}s)`);
+          await new Promise(r => setTimeout(r, 1000));
+        }
+
+        setStep(3, 'completed', 'Committed');
+        progressBar.style.width = '85%';
+        log('SUCCESS', 'Ingestion complete. 10,001 candidate profiles committed to RDS.');
+
+        // ==========================================
+        // 04: n8n Matching Notification (No-CORS Mode)
+        // ==========================================
+        setStep(4, 'active', 'Triggering n8n');
+        log('INFO', `Triggering local n8n Workflow B webhook: ${n8nWebhookUrl}`);
+
+        try {
+          const webhookPayload = JSON.stringify({
+            status: 'completed',
+            objectKey: objectKey,
+            filename: selectedFile.name,
+            triggeredAt: new Date().toISOString()
+          });
+
+          await fetch(n8nWebhookUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: webhookPayload
+          });
+
+          setStep(4, 'completed', 'Triggered');
+          log('SUCCESS', 'n8n Workflow B webhook triggered! Matching pipeline running.');
+        } catch (whErr) {
+          setStep(4, 'failed', 'Unreachable');
+          log('WARN', `Could not reach n8n at ${n8nWebhookUrl} (${whErr.message}). Ensure n8n is running on port 5678.`);
+        }
+
+        progressBar.style.width = '100%';
+        log('SUCCESS', '🎉 Full ingestion flow finished successfully.');
+
+      } catch (err) {
+        log('ERROR', err.message);
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

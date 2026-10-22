@@ -1,0 +1,140 @@
+{
+  "name": "Workflow C - User Notification via AWS SES",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-c",
+      "name": "When Called by Workflow B",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    m.match_id,\n    u.user_id,\n    u.name AS user_name,\n    u.email AS original_email,\n    u.monthly_income,\n    u.credit_score,\n    p.product_name,\n    p.provider_name,\n    p.interest_rate,\n    p.source_url,\n    m.match_score,\n    m.ai_reasoning\nFROM matches m\nINNER JOIN users u ON u.user_id = m.user_id\nINNER JOIN loan_products p ON p.product_id = m.product_id\nWHERE m.notified = FALSE\nORDER BY m.created_at DESC\nLIMIT 5;"
+      },
+      "id": "postgres-fetch-c",
+      "name": "Fetch Unnotified Matches (AWS RDS)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        440,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "aws-rds-postgres-cred",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================================\n// SAFETY EMAIL ALIAS REWRITER\n// Never send emails to @example.com from users.csv!\n// Rewrites every recipient to your verified Gmail +alias (e.g., patil.durvesh8668+one@gmail.com)\n// ============================================================================\nconst baseEmail = 'patil.durvesh8668@gmail.com';\nconst [localPart, domainPart] = baseEmail.split('@');\n\nconst aliases = ['one', 'two', 'three', 'four', 'five'];\n\nreturn $input.all().map((item, idx) => {\n  const data = item.json;\n  const tag = aliases[idx % aliases.length];\n  const safeRecipient = `${localPart}+${tag}@${domainPart}`;\n\n  return {\n    json: {\n      ...data,\n      safe_recipient_email: safeRecipient,\n      email_subject: `Pre-Approved Offer: ${data.product_name} (${data.interest_rate}% p.a.)`,\n      email_html: `\n        <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;\">\n          <h2 style=\"color: #0f172a; margin-top: 0;\">Hi ${data.user_name}, You Are Pre-Qualified!</h2>\n          <p style=\"color: #334155; line-height: 1.6;\">\n            Based on your profile (Credit Score: <strong>${data.credit_score}</strong>, Monthly Income: <strong>INR ${data.monthly_income}</strong>),\n            you have been matched with the following personal loan product:\n          </p>\n          <div style=\"background: #f8fafc; padding: 16px; border-left: 4px solid #2563eb; margin: 16px 0;\">\n            <h3 style=\"margin: 0 0 8px 0; color: #1e40af;\">${data.product_name} \u2014 ${data.provider_name}</h3>\n            <p style=\"margin: 4px 0;\"><strong>Interest Rate:</strong> ${data.interest_rate}% p.a.</p>\n            <p style=\"margin: 4px 0;\"><strong>Eligibility Score:</strong> ${data.match_score}/100</p>\n            <p style=\"margin: 8px 0 0 0; font-style: italic; color: #475569;\">\"${data.ai_reasoning}\"</p>\n          </div>\n          <p style=\"margin-top: 20px;\">\n            <a href=\"${data.source_url}\" style=\"background: #2563eb; color: #ffffff; text-decoration: none; padding: 10px 18px; border-radius: 6px; display: inline-block;\">View Official Loan Details</a>\n          </p>\n          <hr style=\"border: none; border-top: 1px solid #e2e8f0; margin-top: 24px;\" />\n          <p style=\"font-size: 12px; color: #94a3b8;\">\n            Original CSV Email: ${data.original_email} | Routed safely to verified alias: ${safeRecipient}\n          </p>\n        </div>\n      `\n    }\n  };\n});"
+      },
+      "id": "code-alias-c",
+      "name": "Rewrite @example.com to Verified Gmail +Alias",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "isBodyHtml": true,
+        "subject": "={{ $json.email_subject }}",
+        "body": "={{ $json.email_html }}",
+        "fromEmail": "patil.durvesh8668@gmail.com",
+        "toAddresses": [
+          "={{ $json.safe_recipient_email }}"
+        ]
+      },
+      "id": "aws-ses-c",
+      "name": "Send Email via AWS SES",
+      "type": "n8n-nodes-base.awsSes",
+      "typeVersion": 1,
+      "position": [
+        920,
+        300
+      ],
+      "credentials": {
+        "aws": {
+          "id": "aws-ses-cred",
+          "name": "AWS (IAM) account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE matches\nSET notified = TRUE,\n    notified_at = CURRENT_TIMESTAMP\nWHERE match_id = {{ $('Rewrite @example.com to Verified Gmail +Alias').item.json.match_id }};"
+      },
+      "id": "postgres-mark-sent-c",
+      "name": "Mark Match as Notified in AWS RDS",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1160,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "aws-rds-postgres-cred",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When Called by Workflow B": {
+      "main": [
+        [
+          {
+            "node": "Fetch Unnotified Matches (AWS RDS)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Unnotified Matches (AWS RDS)": {
+      "main": [
+        [
+          {
+            "node": "Rewrite @example.com to Verified Gmail +Alias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rewrite @example.com to Verified Gmail +Alias": {
+      "main": [
+        [
+          {
+            "node": "Send Email via AWS SES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email via AWS SES": {
+      "main": [
+        [
+          {
+            "node": "Mark Match as Notified in AWS RDS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

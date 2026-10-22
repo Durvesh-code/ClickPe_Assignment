@@ -272,13 +272,3 @@ Activate the workflows by toggling the switch in the top-right corner to **Activ
 * Automatically rewrites addresses to a verified Gmail alias (`yourname+user1@gmail.com`).
 * Calls **AWS SES** via the native n8n SES node to dispatch a personalized HTML notification with the matched product name, interest rate, and AI reasoning note.
 * Updates `matches.notified = TRUE` to ensure idempotency.
-
----
-
-## 👥 7. Repository Collaborators
-
-Per submission guidelines, the following GitHub users are invited as collaborators:
-* `ujjwalkala-clickpe`
-* `HarshSrivastav-Dailype`
-* `ManishBiswal-clickpe`
-* `tushar-clickpe`

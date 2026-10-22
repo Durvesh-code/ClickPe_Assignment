@@ -566,20 +566,10 @@
 
       } catch (err) {
         log('ERROR', err.message);
-        if (window.location.protocol === 'file:') {
-          setStep(1, 'failed', 'CORS Block');
-          log('WARN', 'Browser CORS Block: Opening HTML directly via file:// sets Origin: null, which cloud APIs block.');
-          log('INFO', '👉 Solution: Run "npm start" in terminal and open http://localhost:3000 in your browser.');
-        }
       } finally {
         uploadBtn.disabled = false;
       }
     });
-
-    // Check protocol on page load
-    if (window.location.protocol === 'file:') {
-      log('WARN', 'Running via file:// (Origin: null). Cloud APIs require a local server. Run "npm start" and visit http://localhost:3000');
-    }
   </script>
 </body>
 

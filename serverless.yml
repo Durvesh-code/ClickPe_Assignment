@@ -8,17 +8,6 @@ provider:
   stage: ${opt:stage, 'dev'}
   memorySize: 512
   timeout: 29
-  httpApi:
-    cors:
-      allowedOrigins:
-        - '*'
-      allowedHeaders:
-        - Content-Type
-        - Authorization
-      allowedMethods:
-        - GET
-        - POST
-        - OPTIONS
   s3:
     uploadBucket:
       name: ${self:custom.bucketName}

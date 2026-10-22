@@ -10,7 +10,7 @@ credentials.txt
 .env.local
 .env.*.local
 !.env.example
-
+Archtecture.excalidraw
 # ==========================================
 # Node.js & Dependencies
 # ==========================================
